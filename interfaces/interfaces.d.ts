@@ -91,17 +91,18 @@ export interface Movie {
   popularity: number;
   poster_path: string;
   release_date: string;
-  video: boolean;
+
   vote_average: number;
   vote_count: number;
   ///
   name: string;
   image: string;
-  video: string;
+  video: string | undefined;
   time: string;
   approxiT: string;
   popular: string;
   category: string;
+  video: string;
   categoryId: string;
   year: string;
   casts: {
