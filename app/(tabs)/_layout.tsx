@@ -1,45 +1,153 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { View, Text, ImageBackground, Image, Platform } from "react-native";
+import React from "react";
+import { Tabs } from "expo-router";
+import { images } from "@/constants/images";
+import { Ionicons } from "@expo/vector-icons";
+import { Keyboard } from "react-native";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+const _layout = () => {
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const TabIcon = ({ focused, title, icon1 }: any) => {
+    return (
+      <View
+        style={{
+          backgroundColor: focused ? "rgba(168, 181, 219, 1)" : "",
+
+          boxShadow: focused ? "0px 0px 6px 3px rgba(255, 255, 255, 0.5)" : "", // Custom web shadow
+        }}
+        className={`items-center justify-center min-w-16 min-h-16 rounded-full `}
+      >
+        {icon1}
+        <Text
+          style={{
+            fontSize: 12,
+            color: focused ? "black" : "rgba(168, 181, 219, 1)",
+          }}
+        >
+          {title}
+        </Text>
+      </View>
+    );
+  };
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+        tabBarIconStyle: {
+          width: "100%",
+          height: "100%",
+          // backgroundColor:'yellow',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        },
+        tabBarStyle: {
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          backgroundColor: "rgba(2, 0, 19, 0.7)",
+          borderRadius: 50,
+          marginHorizontal: 10,
+          marginVertical: 10,
+          height: 70,
+          borderWidth: 1,
+          borderTopWidth: 1,
+          borderColor: "rgba(168, 181, 219, 1)",
+          overflow: "hidden",
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: "Home",
+          lazy: true,
+          headerShown: false,
+          tabBarLabel: () => null,
+          tabBarIcon: ({ focused }) => (
+            <View className="flex-1 justify-center items-center ">
+              <TabIcon
+                focused={focused}
+                title="Home"
+                icon1={
+                  <Ionicons
+                    name="home"
+                    size={18}
+                    color={focused ? "black" : "rgba(168, 181, 219, 1)"}
+                  />
+                }
+              />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "Search",
+          lazy: true,
+          headerShown: false,
+          tabBarLabel: () => null,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              title="Search"
+              icon1={
+                <Ionicons
+                  name="search"
+                  size={18}
+                  color={focused ? "black" : "rgba(168, 181, 219, 1)"}
+                />
+              }
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          lazy: true,
+          title: "Profile",
+          headerShown: false,
+          tabBarLabel: () => null, //this will remove the default label so you can use
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              icon1={
+                <Ionicons
+                  name="person"
+                  size={18}
+                  color={focused ? "black" : "rgba(168, 181, 219, 1)"}
+                />
+              }
+              title="Profile"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="saved"
+        options={{
+          title: "Saved",
+          headerShown: false,
+          tabBarLabel: () => null,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              title="Saved"
+              icon1={
+                <Ionicons
+                  name="bookmarks"
+                  size={18}
+                  color={focused ? "black" : "rgba(168, 181, 219, 1)"}
+                />
+              }
+              focused={focused}
+            />
+          ),
         }}
       />
     </Tabs>
   );
-}
+};
+
+export default _layout;
