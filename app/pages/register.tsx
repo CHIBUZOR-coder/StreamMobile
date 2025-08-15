@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   Modal,
   ScrollView,
@@ -15,7 +16,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
-const profile = () => {
+const register = () => {
   const router = useRouter();
   type PickedImage = {
     uri: string;
@@ -40,6 +41,30 @@ const profile = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // const pickImage = async () => {
+  //   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  //   if (status !== "granted") {
+  //     alert("We need permission to access your photos.");
+  //     return;
+  //   }
+  //   const result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  //     allowsEditing: true, // ✅ allows cropping
+  //     quality: 1,
+  //     base64: true,
+  //   });
+
+  //   if (!result.canceled) {
+  //     const image = result.assets[0];
+  //     setPickedImage({
+  //       uri: image.uri,
+  //       name: image.fileName || "selected-image.jpg",
+  //       size: image.fileSize || 0,
+  //     });
+  //   } else {
+  //     console.log("Image picking cancelled");
+  //   }
+  // };
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -91,6 +116,13 @@ const profile = () => {
   }, [userModalVisible]);
   return (
     <SafeAreaView className="flex-1 bg-primary  flex flex-col justify-center items-center relative">
+      {/* Loading Overlay */}
+      {userLoading && (
+        <View className="absolute top-0 left-0 w-full h-full bg-black/50 z-50 flex justify-center items-center">
+          <ActivityIndicator size="large" color="blue" />
+        </View>
+      )}
+
       {modalVisible && (
         <View className="absolute  w-full h-full bg-trans2 z-50 flex justify-center items-center">
           {userData ? (
@@ -102,24 +134,29 @@ const profile = () => {
               <TouchableOpacity
                 onPress={() => {
                   setModalVisible(false);
+                   router.push({ pathname: "/" });
                 }}
                 className="flex-1 bg-trans2 justify-center items-center"
               >
-                <View className="bg-white rounded-md w-[80%] h-[300px] p-4 flex justify-center items-center">
-                  <Text className="text-black font-semibold">
-                    {success && success}
-                  </Text>
-                </View>
+                {userError ? (
+                  <View>{userError && userError}</View>
+                ) : success ? (
+                  <View className="bg-white rounded-md w-[80%] h-[300px] p-4 flex justify-center items-center">
+                    <Text className="text-black font-semibold">
+                      {success && success}
+                    </Text>
+                  </View>
+                ) : (
+                  <></>
+                )}
               </TouchableOpacity>
             </Modal>
-          ) : userError ? (
-            <View></View>
           ) : (
-            <></>
+            <Text>nothing</Text>
           )}
         </View>
       )}
-      {/* <ScrollView className="w-full px-6">
+      <ScrollView className="w-full px-6">
         <View className="bg-dark-100 border-[2px] border-white  rounded-md p-4 mt-12 flex justify-center items-center gap-5 w-full ">
           <View className=" rounded-full relative  h-20 w-20 bg-red-500">
             <Image
@@ -267,11 +304,9 @@ const profile = () => {
             <Text className="font-semibold text-lg text-white">Login</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView> */}
-
-      <Text className="font-bold text-subMain">PROFILE</Text>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default profile;
+export default register;

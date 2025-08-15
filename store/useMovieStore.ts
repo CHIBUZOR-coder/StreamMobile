@@ -112,6 +112,7 @@ export const useMovieStore = create<MovieState>((set) => ({
       });
     }
   },
+  
   addTrending: async (query: string, id: number) => {
     console.log("Trending function called with:", query, id);
     try {

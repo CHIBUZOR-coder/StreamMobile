@@ -137,6 +137,24 @@ interface Casts {
   image: string;
   role: string;
 }
+interface User {
+  id: number;
+  email: String;
+  password: String;
+  name: String;
+  userName: String;
+  phone: String;
+  status: Boolean;
+  resetTokenExpiry: string;
+  role: string;
+  favouriteCart: [];
+  receipt: [];
+  subscriptionData: String;
+  subscription: string;
+  movieReviews: [];
+  resetToken: string;
+  WatchCart: [];
+}
 
 export interface MovieDetails {
   adult: boolean;
