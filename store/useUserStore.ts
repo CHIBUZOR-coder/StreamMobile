@@ -4,13 +4,44 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { TMDB_CONFIG } from "@/Services/api";
 import { User } from "@/interfaces/interfaces";
 import { useRouter } from "expo-router";
+import { fetchMovies } from "../Services/api";
 
 type UserState = {
-  userData: User[];
+  userData: {
+    id: number | null;
+    image: string | null;
+    name: string | null;
+    phone: string | null;
+    email: string | null;
+    role: string | null;
+    userName: string | null;
+    subscription: string | null;
+  };
+
   userLoading: boolean;
   userError: string | null;
   userModalVisible: boolean;
   success: string;
+  favouriteMovies: {
+    favouriteCartMovies: [];
+  } | null;
+
+  watchedMovies: {
+    watchCartMovies:
+      | [
+          {
+            movie: any;
+            name: string | null;
+            category: string | null;
+            year: string | null;
+            time: string | null;
+            status: string | null;
+            image: string | null;
+            id: number | null;
+          },
+        ]
+      | null;
+  } | null;
   fetchUser: (
     email: string,
     phone: string,
@@ -22,6 +53,8 @@ type UserState = {
   ) => Promise<void>;
   LoginUsers: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  getFavouriteMovies: (name: string | null) => void;
+  getWatchCount: (name: string | null) => void;
 };
 
 const router = useRouter();
@@ -29,7 +62,18 @@ const router = useRouter();
 export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
-      userData: [],
+      userData: {
+        id: null,
+        image: null,
+        name: null,
+        phone: null,
+        email: null,
+        role: null,
+        userName: null,
+        subscription: null,
+      },
+      favouriteMovies: null,
+      watchedMovies: null,
       userLoading: false,
       userError: null,
       userModalVisible: false,
@@ -74,16 +118,15 @@ export const useUserStore = create<UserState>()(
               userModalVisible: true,
             });
             setTimeout(() => set({ userModalVisible: false }), 8000);
-            return;
+          } else {
+            set({
+              userLoading: false,
+              userData: data,
+              userModalVisible: true,
+              success: data?.message,
+            });
+            setTimeout(() => set({ userModalVisible: false }), 8000);
           }
-
-          set({
-            userLoading: false,
-            userData: data,
-            userModalVisible: true,
-            success: data?.message,
-          });
-          setTimeout(() => set({ userModalVisible: false }), 8000);
         } catch (error) {
           console.error("Error uploading user data:", error);
         }
@@ -106,8 +149,10 @@ export const useUserStore = create<UserState>()(
             set({ userError: data?.message, userModalVisible: true });
             setTimeout(() => set({ userModalVisible: false }), 6000);
           } else {
+            console.log("data", data?.userInfo);
+
             set({
-              userData: data?.data,
+              userData: data?.userInfo,
               userError: null,
               success: data?.message,
               userModalVisible: true,
@@ -122,9 +167,88 @@ export const useUserStore = create<UserState>()(
         }
       },
 
+      getWatchCount: async (name) => {
+        const endpoint = `${TMDB_CONFIG.BASE_URL}/getWatchCount`;
+        console.log("fetching from:", endpoint);
+        console.log("watchName:", name);
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          console.log(data);
+
+          set({ userLoading: false, userError: data?.message });
+        } else {
+          console.log("watch:", data?.data?.watchCartMovies[0].movie.id, "\n \n");
+          set({ watchedMovies: data?.data });
+        }
+
+        try {
+        } catch (error: any) {
+          console.log(error.message);
+        }
+      },
+
+      getFavouriteMovies: async (name) => {
+        const endpoint = `${TMDB_CONFIG.BASE_URL}/getfavouriteCart`;
+        set({ userLoading: true });
+        console.log("fetching favouriteMovies from:", endpoint);
+        console.log("name:", name);
+
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            set({
+              userLoading: false,
+              userError: data?.message,
+              userModalVisible: true,
+            });
+            // console.log(data);
+            setTimeout(() => set({ userModalVisible: false }), 8000);
+          } else {
+            set({
+              userLoading: false,
+              userModalVisible: true,
+              favouriteMovies: data?.data,
+              success: data?.message,
+            });
+            console.log("favouriteMovies:", data.data);
+            setTimeout(() => set({ userModalVisible: false }), 8000);
+          }
+        } catch (error: any) {
+          console.log(error.message);
+        }
+      },
+
       logout: () => {
         set({
-          userData: [],
+          userData: {
+            id: null,
+            image: null,
+            name: null,
+            phone: null,
+            email: null,
+            role: null,
+            userName: null,
+            subscription: null,
+          },
           success: "",
           userError: null,
         });

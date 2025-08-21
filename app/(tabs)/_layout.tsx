@@ -1,12 +1,16 @@
 import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const _layout = () => {
   const { userData } = useUserStore();
+
+  useEffect(() => {
+    console.log("userDataaa:", userData);
+  }, [userData]);
   const router = useRouter();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const TabIcon = ({ focused, title, icon1 }: any) => {
@@ -50,11 +54,11 @@ const _layout = () => {
         >
           <View
             style={{
-              backgroundColor: "white",
               padding: 20,
               borderRadius: 10,
               width: "80%",
             }}
+            className="flex justify-center items-center bg-primary2 border-2 border-white gap-4"
           >
             <Text
               className="text-white"
@@ -63,38 +67,40 @@ const _layout = () => {
               You need to register or log in to access your profile.
             </Text>
 
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#007BFF",
-                padding: 10,
-                borderRadius: 5,
-                marginBottom: 10,
-              }}
-              onPress={() => {
-                router.push({ pathname: "/pages/login" });
-                setShowLoginModal(false);
-                console.log("show:", showLoginModal);
+            <View className="w-full">
+              <TouchableOpacity
+                style={{
+                  padding: 10,
+                  borderRadius: 5,
+                  marginBottom: 15,
+                }}
+                className="text-white border-2 border-subMain font-semibold w-full"
+                onPress={() => {
+                  router.push({ pathname: "/pages/login" });
+                  setShowLoginModal(false);
+                  console.log("show:", showLoginModal);
 
-                // Navigate to register or login page
-              }}
-            >
-              <Text style={{ color: "white", textAlign: "center" }}>
-                Go to Register
-              </Text>
-            </TouchableOpacity>
+                  // Navigate to register or login page
+                }}
+              >
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  Go to Register
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{
-                padding: 10,
-                borderRadius: 5,
-                backgroundColor: "gray",
-              }}
-              onPress={() => setShowLoginModal(false)}
-            >
-              <Text style={{ color: "white", textAlign: "center" }}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  padding: 10,
+                  borderRadius: 5,
+                }}
+                className="text-white bg-subMain font-semibold w-full"
+                onPress={() => setShowLoginModal(false)}
+              >
+                <Text className="text-white font-semibold text-center">
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -176,7 +182,11 @@ const _layout = () => {
           listeners={{
             tabPress: (e) => {
               e.preventDefault();
-              if (!userData || Object.keys(userData).length === 0) {
+              if (userData?.id) {
+                console.log("Profile Load");
+                router.push({ pathname: "/(tabs)/profile" });
+              } else {
+                console.log("Login Load");
                 setShowLoginModal(true);
               }
             },

@@ -5,6 +5,7 @@ import { images } from "@/constants/images";
 import { Movie } from "@/interfaces/interfaces";
 import { useMovieStore } from "@/store/useMovieStore";
 import { useTrendStore } from "@/store/useTrendingMovies";
+import { useUserStore } from "@/store/useUserStore";
 
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -33,6 +34,7 @@ export default function Index() {
   const { movies, fetchMovies, loading, error } = useMovieStore();
   const { getTrendingMovies, trendingmovies, trendLoading, trendeError } =
     useTrendStore();
+    const { logout } = useUserStore();
 
   useEffect(() => {
     fetchMovies("api/getMovies"); // fetches popular movies
@@ -41,11 +43,20 @@ export default function Index() {
     getTrendingMovies("getTrending"); // fetches popular movies
   }, []);
 
+    const { userData } = useUserStore();
+    useEffect(() => {
+      console.log("userData:", userData);
+    }, [userData]);
+
   useEffect(() => {
     // console.log("Fetched Movies:", movies);
     // console.log("Fetched casts:", casts);
     console.log("Fetch Error:", error);
   }, [movies, error]); // log whenever movies or error changes
+
+    // useEffect(() => {
+    //   logout();
+    // }, []);
 
   return (
     <View className="flex-1 bg-primary relative bg-cover bg-lig bg-center">
@@ -121,7 +132,7 @@ export default function Index() {
             <FlatList
               data={movies}
               renderItem={({ item }) => (
-                <View className="w-1/2  px-3 mb-4">
+                <View className="w-1/2  px-3 mb-12">
                   <Card item={item} />
                 </View>
               )}

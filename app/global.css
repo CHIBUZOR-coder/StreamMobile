@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.box{
+    @apply w-[80px] h-[80px] bg-primary flex  justify-center items-center rounded-full p-2 shadow-light-100 shadow-2xl border-[2px] border-light-100 
+}

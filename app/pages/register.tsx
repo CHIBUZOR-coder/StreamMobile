@@ -123,6 +123,24 @@ const register = () => {
         </View>
       )}
 
+      <View className="flex justify-start items-start w-full px-14">
+        <View className="   justify-center items-center  h-20 bg-red-500 min-w-1/2">
+          <TouchableOpacity
+            style={{
+              boxShadow: "0px 0px 6px 3px rgba(255, 255, 255, 0.5)",
+            }}
+            onPress={() => {
+              router.back();
+            }}
+            className="h-14 w-14 z-10 absolute  rounded-full border-2  flex justify-center items-center"
+          >
+            <Ionicons name="arrow-back" size={28} color={"#D6C6FF"} />
+          </TouchableOpacity>
+
+          <View className="h-16 w-16 absolute animate-ping  rounded-full bg-light-100  flex justify-center items-center"></View>
+        </View>
+      </View>
+
       {modalVisible && (
         <View className="absolute  w-full h-full bg-trans2 z-50 flex justify-center items-center">
           {userData ? (
@@ -134,7 +152,7 @@ const register = () => {
               <TouchableOpacity
                 onPress={() => {
                   setModalVisible(false);
-                   router.push({ pathname: "/" });
+                  router.push({ pathname: "/" });
                 }}
                 className="flex-1 bg-trans2 justify-center items-center"
               >

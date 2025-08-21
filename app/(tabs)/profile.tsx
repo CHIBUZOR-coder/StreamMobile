@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   Modal,
   ScrollView,
@@ -8,268 +9,257 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useUserStore } from "@/store/useUserStore";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { types } from "@babel/core";
+import watch from "../pages/watch";
 
 const profile = () => {
   const router = useRouter();
-  type PickedImage = {
-    uri: string;
-    name: string;
-    size: number;
-  } | null;
-  const [pickedImage, setPickedImage] = useState<PickedImage>(null);
-
-  useEffect(() => {
-    console.log("image:", pickedImage);
-  }, [pickedImage]);
-  const [formData, setFormData] = useState({
-    email: "",
-    phone: "",
-    userName: "",
-    name: "",
-    password: "",
-    confirmpassword: "",
-  });
-
-  const handleChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  type Navlinks = {
+    title: string;
+    icon: ReactNode; // 👈 can be any React element (e.g. <Ionicons />)
   };
-
-
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("We need permission to access your photos.");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"], // ✅ use string array instead of MediaTypeOptions
-      allowsEditing: true,
-      quality: 1,
-      base64: true,
-    });
-
-    if (!result.canceled) {
-      const image = result.assets[0];
-      setPickedImage({
-        uri: image.uri,
-        name: image.fileName || "selected-image.jpg",
-        size: image.fileSize || 0,
-      });
-    } else {
-      console.log("Image picking cancelled");
-    }
-  };
-
-  const { email, phone, userName, name, password, confirmpassword } = formData;
 
   const {
-    fetchUser,
     userData,
-    userError,
+    favouriteMovies,
+    getFavouriteMovies,
     userLoading,
-    userModalVisible,
-    success,
+    getWatchCount,
+    watchedMovies,
   } = useUserStore();
 
-  const HandleRegister = () => {
-    const image = pickedImage ? pickedImage : null;
-
-    fetchUser(email, phone, userName, name, password, confirmpassword, image);
-  };
-
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-
   useEffect(() => {
-    setModalVisible(userModalVisible);
-  }, [userModalVisible]);
+    getFavouriteMovies(userData?.name);
+    getWatchCount(userData?.name);
+    // console.log("pro:", userData?.name);
+  }, []);
+
+  // useEffect(() => {
+  //   console.log("length:", favouriteMovies?.favouriteCartMovies?.length);
+  // }, [favouriteMovies]);
+
   return (
-    <SafeAreaView className="flex-1 bg-primary  flex flex-col justify-center items-center relative">
-      {modalVisible && (
-        <View className="absolute  w-full h-full bg-trans2 z-50 flex justify-center items-center">
-          {userData ? (
-            <Modal
-              // visible={modalVisible}
-              transparent={true}
-              animationType="fade"
-            >
-              <TouchableOpacity
-                onPress={() => {
-                  setModalVisible(false);
-                }}
-                className="flex-1 bg-trans2 justify-center items-center"
-              >
-                <View className="bg-white rounded-md w-[80%] h-[300px] p-4 flex justify-center items-center">
-                  <Text className="text-black font-semibold">
-                    {success && success}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </Modal>
-          ) : userError ? (
-            <View></View>
-          ) : (
-            <></>
-          )}
-        </View>
-      )}
-      {/* <ScrollView className="w-full px-6">
-        <View className="bg-dark-100 border-[2px] border-white  rounded-md p-4 mt-12 flex justify-center items-center gap-5 w-full ">
-          <View className=" rounded-full relative  h-20 w-20 bg-red-500">
-            <Image
-              source={{
-                uri: "https://res.cloudinary.com/dtjgj2odu/image/upload/v1739151976/logoround_awixqx.png",
-              }}
-              resizeMode="cover"
-              className="absolute w-20 h-20 top-0 left-0"
-            />
+    <SafeAreaView className="flex-1 bg-primary  flex flex-col justify-start items-center relative p-4">
+      <ScrollView className="">
+        {userLoading && (
+          <View className="absolute top-0 left-0 w-full h-full bg-black/50 z-50 flex justify-center items-center">
+            <ActivityIndicator size="large" color="blue" />
           </View>
-
-          <View className="rounded-md border-[2px] border-border w-full  ">
-            <TextInput
-              className="w-full p-2 bg-primary rounded-md text-gray-500 "
-              placeholder="Full Name"
-              value={formData.name}
-              onChangeText={(text) => {
-                handleChange("name", text);
-                console.log("name:", text);
-              }}
-              placeholderTextColor={"gray"}
-            />
-          </View>
-          <View className="rounded-md border-[2px] border-border w-full   ">
-            <TextInput
-              className="w-full p-2 bg-primary rounded-md  text-gray-500 "
-              placeholder="User Name"
-              value={formData.userName}
-              onChangeText={(text) => {
-                handleChange("userName", text);
-                console.log("userName:", text);
-              }}
-              placeholderTextColor={"gray"}
-            />
-          </View>
-          <View className="rounded-md border-[2px] border-border w-full   ">
-            <TextInput
-              className="w-full p-2 bg-primary rounded-md text-gray-500 "
-              value={formData.email}
-              onChangeText={(text) => {
-                handleChange("email", text);
-                console.log("email:", text);
-              }}
-              placeholder="samex@gmail.com"
-              placeholderTextColor={"gray"}
-            />
-          </View>
-          <View className="rounded-md border-[2px] border-border w-full   ">
-            <TextInput
-              className="w-full p-2 bg-primary rounded-md text-gray-500 "
-              value={formData.phone}
-              onChangeText={(text) => {
-                handleChange("phone", text);
-                console.log("phone:", text);
-              }}
-              placeholder="09074639302"
-              placeholderTextColor={"gray"}
-            />
-          </View>
-          <View className="rounded-md border-[2px] border-border w-full    ">
-            <TextInput
-              className="w-full p-2 bg-primary rounded-md text-gray-500 "
-              value={formData.password}
-              secureTextEntry={true}
-              onChangeText={(text) => {
-                handleChange("password", text);
-                console.log("password:", text);
-              }}
-              placeholder="password"
-              placeholderTextColor={"gray"}
-            />
-          </View>
-          <View className="rounded-md border-[2px] border-border w-full  ">
-            <TextInput
-              className="w-full p-2 bg-primary rounded-md text-gray-500 "
-              value={formData.confirmpassword}
-              secureTextEntry={true}
-              onChangeText={(text) => {
-                handleChange("confirmpassword", text);
-                console.log("confirm:", text);
-              }}
-              placeholder="Confirmpassword"
-              placeholderTextColor={"gray"}
-            />
-          </View>
-
-          <View className="rounded-lg w-full border-[2px] border-border">
-            {pickedImage ? (
-              <TouchableOpacity
-                onPress={pickImage}
-                style={{ alignItems: "center" }}
-                className=" p-2"
-              >
-                <View className="w-full overflow-hidden rounded-md relative h-[200px]">
-                  <Image
-                    source={{ uri: pickedImage.uri }}
-                    resizeMode="cover"
-                    className="absolute left-0 top-0 w-full h-full"
-                  />
-                </View>
-                <Text style={{ marginTop: 8, color: "white" }}>
-                  Tap to change image
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={pickImage}
-                className="rounded-md relative w-full py-4 bg-primary overflow-hidden flex flex-row justify-center items-center"
-              >
-                <Ionicons
-                  name="image"
-                  size={40}
-                  color="white"
-                  style={{ marginRight: 10 }}
+        )}
+        <View className="flex-1 mb-28">
+          <View className=" bg-drkb rounded-md   w-full  p-6">
+            <View className="bg-primary border-[2px] rounded-md border-light-100  flex justify-center items-center p-4 gap-[2px]">
+              <View className="">
+                <Image
+                  className=" h-28 w-28 rounded-full"
+                  source={{
+                    uri: `${userData?.image}`,
+                  }}
                 />
+              </View>
+
+              <Text className=" text-white font-bold text-lg">
+                {userData?.userName}
+              </Text>
+              <Text className=" text-white ">{userData?.email}</Text>
+              <View className="flex flex-row justify-center items-start">
+                <Ionicons name="phone-portrait" size={18} color={"white"} />
+                <Text className=" text-white ">{userData?.phone}</Text>
+              </View>
+            </View>
+
+            <View className="flex justify-between items-center gap-4 mt-6 flex-row flex-wrap">
+              <TouchableOpacity className=" box  ">
+                <Ionicons name="person" size={20} color={"#D6C6FF"} />
                 <Text
-                  className="text-gray-500 font-semibold"
-                  style={{ color: "white", fontSize: 20 }}
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-semibold text-xs"
                 >
-                  Add an image
+                  Update
                 </Text>
               </TouchableOpacity>
-            )}
+              <TouchableOpacity className="box   rounded-full ">
+                <Ionicons name="key" size={20} color={"#D6C6FF"} />
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-semibold text-xs"
+                >
+                  Password
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="box  w-32 rounded-full h-32">
+                <Ionicons name="log-out" size={20} color={"#D6C6FF"} />
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-semibold text-xs"
+                >
+                  Logout
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <TouchableOpacity
-            onPress={() => {
-              HandleRegister();
-            }}
-            className="w-full bg-subMain rounded-md p-4 justify-center items-center"
-          >
-            <Text className="font-semibold text-white">Submit</Text>
-          </TouchableOpacity>
-        </View>
+          {/* ************ */}
 
-        <View className="w-full flex flex-row justify-center items-center gap-4 mb-48 p-4 ">
-          <Text className="font-semibold text-lg text-white">
-            Already have an account?
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              router.push({ pathname: "/pages/login" });
-            }}
-          >
-            <Text className="font-semibold text-lg text-white">Login</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView> */}
+          <View className=" bg-drkb rounded-md flex gap-5   w-full  p-6 mt-12">
+            <View className="flex flex-row gap-4 justify-start items-center bg-primary border-[2px] border-light-100 rounded-md p-4">
+              <View className="h-16 w-16 rounded-full bg-red-400 shadow-2xl shadow-red-400 flex justify-center items-center">
+                <Ionicons name="heart-circle" size={40} color={"white"} />
+              </View>
+              <View className="flex  justify-center items-center gap-2">
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-semibold text-lg"
+                >
+                  Total Favourites
+                </Text>
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-bold text-lg"
+                >
+                  {favouriteMovies?.favouriteCartMovies?.length}
+                </Text>
+              </View>
+            </View>
+            <View className="flex flex-row gap-4 justify-start items-center bg-primary border-[2px] border-light-100 rounded-md p-4">
+              <View className="h-16 w-16 rounded-full bg-subMain shadow-2xl shadow-subMain flex justify-center items-center">
+                <Ionicons name="chatbox" size={40} color={"white"} />
+              </View>
+              <View className="flex justify-center items-center gap-2">
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-semibold text-lg"
+                >
+                  Subscription Details
+                </Text>
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-bold text-lg"
+                >
+                  {userData?.subscription}
+                </Text>
+              </View>
+            </View>
+            <View className="flex flex-row gap-4 justify-start items-center bg-primary border-[2px] border-light-100 rounded-md p-4">
+              <View className="h-16 w-16 rounded-full bg-blue-600 shadow-2xl shadow-blue-600 flex justify-center items-center">
+                <Ionicons name="time" size={40} color={"white"} />
+              </View>
+              <View className="flex justify-center items-center gap-2">
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-semibold text-lg"
+                >
+                  Watch Count
+                </Text>
+                <Text
+                  style={{ color: "#D6C6FF" }}
+                  className=" font-bold text-lg"
+                >
+                  {watchedMovies?.watchCartMovies?.length}
+                </Text>
+              </View>
+            </View>
 
-      <Text className="font-bold text-subMain">PROFILE</Text>
+            {/* Watch History */}
+            <Text className="text-gray-500 font-bold mt-8 ">Watch History</Text>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View>
+                {/* HEADER */}
+                <View className="flex-row gap-4 bg-gray-200 border-b border-gray-300">
+                  <View className="w-20 justify-center items-center py-2">
+                    <Text className="font-semibold text-black">IMAGE</Text>
+                  </View>
+                  <View className="w-32 justify-center items-center py-2">
+                    <Text className="font-semibold text-black">NAME</Text>
+                  </View>
+                  <View className="w-32 justify-center items-center py-2">
+                    <Text className="font-semibold text-black">CATEGORY</Text>
+                  </View>
+                  <View className="w-24 justify-center items-center py-2">
+                    <Text className="font-semibold text-black">YEAR</Text>
+                  </View>
+                  <View className="w-24 justify-center items-center py-2">
+                    <Text className="font-semibold text-black">HOURS</Text>
+                  </View>
+                  <View className=" justify-center items-center py-2">
+                    <Text className="font-semibold text-black">ACTIONS</Text>
+                  </View>
+                </View>
+
+                {/* BODY */}
+                {watchedMovies?.watchCartMovies?.map((item) => (
+                  <View
+                    key={item.id}
+                    className="flex-row gap-4 p-4 my-2 border-b border-gray-300 items-center"
+                  >
+                    {/* IMAGE */}
+                    <View className="w-20 justify-center items-center py-2">
+                      <Image
+                        source={{ uri: item?.movie?.image }}
+                        className="w-12 h-12 rounded"
+                        resizeMode="cover"
+                      />
+                    </View>
+
+                    {/* NAME */}
+                    <View className="w-32 justify-center items-center py-2">
+                      <Text
+                        numberOfLines={1}
+                        className="text-white font-semibold text-center"
+                      >
+                        {item?.movie?.name}
+                      </Text>
+                    </View>
+
+                    {/* CATEGORY */}
+                    <View className="w-32 justify-center items-center py-2">
+                      <Text className="text-white font-semibold text-center">
+                        {item?.movie?.category?.tittle}
+                      </Text>
+                    </View>
+
+                    {/* YEAR */}
+                    <View className="w-24 justify-center items-center py-2">
+                      <Text className="text-white font-semibold text-center">
+                        {item?.movie?.year}
+                      </Text>
+                    </View>
+
+                    {/* HOURS */}
+                    <View className="w-24 justify-center items-center py-2">
+                      <Text className="text-white font-semibold text-center">
+                        {item?.movie?.time}
+                      </Text>
+                    </View>
+                    {/* ACTIONS */}
+                    <TouchableOpacity
+                      onPress={() => {
+                        router.push({
+                          pathname: "/movies/[id]",
+                          params: { id: String(item?.movie?.id) },
+                        });
+                      }}
+                      className="w-24 justify-center items-center py-5  bg-primary rounded-md border-[2px] border-light-100"
+                    >
+                      <Ionicons name="eye" size={18} color={"white"} />
+                      <Text className="text-white font-semibold text-center">
+                        watch
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

@@ -15,7 +15,7 @@ import { useRouter } from "expo-router";
 import { ScrollView } from "react-native-gesture-handler";
 import { useUserStore } from "@/store/useUserStore";
 
-const login = () => {
+const accoutRecovery = () => {
   const router = useRouter();
 
   const {
@@ -55,7 +55,8 @@ const login = () => {
           <ActivityIndicator size="large" color="blue" />
         </View>
       )}
-      <View className="absolute top-[5%] left-2 w-1/5  justify-center items-center p-2 h-20">
+
+      <View className="absolute top-2 left-2 w-1/5  justify-center items-center p-2 h-20">
         <TouchableOpacity
           style={{
             boxShadow: "0px 0px 6px 3px rgba(255, 255, 255, 0.5)",
@@ -68,7 +69,7 @@ const login = () => {
           <Ionicons name="arrow-back" size={28} color={"#D6C6FF"} />
         </TouchableOpacity>
 
-        <View className="h-16 w-16 absolute   rounded-full   flex justify-center items-center"></View>
+        <View className="h-16 w-16 absolute animate-ping  rounded-full bg-light-100  flex justify-center items-center"></View>
       </View>
 
       <Modal
@@ -110,7 +111,7 @@ const login = () => {
           alignItems: "center", // Center horizontally
         }}
       >
-        <View className="w-full flex flex-col justify-center items-center z-20 relative  flex-1">
+        <View className="w-full flex flex-col justify-center items-center  flex-1">
           <View className="bg-dark-100 border-[2px] border-white  rounded-md p-4 mt-12 flex justify-center items-center gap-5 w-full ">
             <View className=" rounded-full relative  h-20 w-20 bg-red-500">
               <Image
@@ -159,7 +160,7 @@ const login = () => {
             </TouchableOpacity>
           </View>
 
-          <View className="w-full flex flex-row justify-center items-center gap-4  p-4 ">
+          <View className="w-full flex flex-row justify-center items-center gap-4 mb-48 p-4 ">
             <Text className="font-semibold text-lg text-white">
               Donn't have an account?
             </Text>
@@ -174,7 +175,7 @@ const login = () => {
           <View className="w-full flex flex-row justify-center items-center gap-4 mb-48 p-4 ">
             <TouchableOpacity
               onPress={() => {
-                router.push({ pathname: "/pages/accoutRecovery" });
+                router.push({ pathname: "/pages/register" });
               }}
             >
               <Text className="font-semibold text-lg text-white">
@@ -188,4 +189,4 @@ const login = () => {
   );
 };
 
-export default login;
+export default accoutRecovery;
